@@ -69,7 +69,7 @@ export const LeftBar = ({ selectedTab }: { selectedTab: Tab | null }) => {
               </li>
             );
           })}
-          <div
+          {/* <div
             className="relative flex grow cursor-default items-center gap-3 rounded-xl px-2 py-1 font-bold uppercase text-gray-400 hover:bg-gray-100"
             onClick={() => setMoreMenuShown((x) => !x)}
             onMouseEnter={() => setMoreMenuShown(true)}
@@ -144,7 +144,7 @@ export const LeftBar = ({ selectedTab }: { selectedTab: Tab | null }) => {
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
         </ul>
       </nav>
       <LoginScreen

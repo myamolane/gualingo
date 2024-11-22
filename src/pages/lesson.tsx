@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   AppleSvg,
   BigCloseSvg,
@@ -19,25 +19,41 @@ import womanPng from "../../public/woman.png";
 import { useBoundStore } from "~/hooks/useBoundStore";
 import { useRouter } from "next/router";
 
+enum EAnswerType {
+  SELECT_SINGLE,
+  WRITE_IN_ENGLISH,
+}
+
 const lessonProblem1 = {
-  type: "SELECT_1_OF_3",
+  type: EAnswerType.SELECT_SINGLE,
   question: `Which one of these is "the apple"?`,
   answers: [
     { icon: <AppleSvg />, name: "la manzana" },
     { icon: <BoySvg />, name: "el niño" },
     { icon: <WomanSvg />, name: "la mujer" },
   ],
-  correctAnswer: 0,
+  correctAnswer: [0],
+} as const;
+
+const lessonProblem3 = {
+  type: EAnswerType.SELECT_SINGLE,
+  question: `Which one of these is "the apple"?`,
+  answers: [
+    { icon: <AppleSvg />, name: "la manzana" },
+    { icon: <BoySvg />, name: "el niño" },
+    { icon: <WomanSvg />, name: "la mujer" },
+  ],
+  correctAnswer: [0, 1, 2],
 } as const;
 
 const lessonProblem2 = {
-  type: "WRITE_IN_ENGLISH",
+  type: EAnswerType.WRITE_IN_ENGLISH,
   question: "El niño",
   answerTiles: ["woman", "milk", "water", "I", "The", "boy"],
   correctAnswer: [4, 5],
 } as const;
 
-const lessonProblems = [lessonProblem1, lessonProblem2];
+const lessonProblems = [lessonProblem3, lessonProblem1, lessonProblem2];
 
 const numbersEqual = (a: readonly number[], b: readonly number[]): boolean => {
   return a.length === b.length && a.every((_, i) => a[i] === b[i]);
@@ -86,9 +102,16 @@ const Lesson: NextPage = () => {
       : null;
 
   const { correctAnswer } = problem;
-  const isAnswerCorrect = Array.isArray(correctAnswer)
-    ? numbersEqual(selectedAnswers, correctAnswer)
-    : selectedAnswer === correctAnswer;
+
+  const isAnswerCorrect = useMemo(() => {
+    if (problem.type === EAnswerType.SELECT_SINGLE) {
+      return (correctAnswer as unknown as number[]).indexOf(selectedAnswer as number) > -1;
+    }
+    if (problem.type === EAnswerType.WRITE_IN_ENGLISH) {
+      return numbersEqual(selectedAnswers, correctAnswer);
+    }
+    return true;
+  }, [correctAnswer, problem.type, selectedAnswer, selectedAnswers]);
 
   const onCheckAnswer = () => {
     setCorrectAnswerShown(true);
@@ -102,12 +125,12 @@ const Lesson: NextPage = () => {
       {
         question: problem.question,
         yourResponse:
-          problem.type === "SELECT_1_OF_3"
+          problem.type === EAnswerType.SELECT_SINGLE
             ? problem.answers[selectedAnswer ?? 0]?.name ?? ""
             : selectedAnswers.map((i) => problem.answerTiles[i]).join(" "),
         correctResponse:
-          problem.type === "SELECT_1_OF_3"
-            ? problem.answers[problem.correctAnswer].name
+          problem.type === EAnswerType.SELECT_SINGLE
+            ? problem.correctAnswer.map(answer => problem.answers[answer].name).join(' or ')
             : problem.correctAnswer
                 .map((i) => problem.answerTiles[i])
                 .join(" "),
@@ -181,7 +204,7 @@ const Lesson: NextPage = () => {
   }
 
   switch (problem.type) {
-    case "SELECT_1_OF_3": {
+    case EAnswerType.SELECT_SINGLE: {
       return (
         <ProblemSelect1Of3
           problem={problem}
@@ -201,7 +224,7 @@ const Lesson: NextPage = () => {
       );
     }
 
-    case "WRITE_IN_ENGLISH": {
+    case EAnswerType.WRITE_IN_ENGLISH: {
       return (
         <ProblemWriteInEnglish
           problem={problem}
@@ -502,7 +525,7 @@ const ProblemSelect1Of3 = ({
       </div>
 
       <CheckAnswer
-        correctAnswer={answers[correctAnswer].name}
+        correctAnswer={correctAnswer.map(answer => answers[answer].name).join(' or ')}
         correctAnswerShown={correctAnswerShown}
         isAnswerCorrect={isAnswerCorrect}
         isAnswerSelected={selectedAnswer !== null}

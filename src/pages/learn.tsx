@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Link from "next/link";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActiveBookSvg,
   LockedBookSvg,
@@ -34,12 +34,12 @@ import { useRouter } from "next/router";
 import { LoginScreen, useLoginScreen } from "~/components/LoginScreen";
 import { useBoundStore } from "~/hooks/useBoundStore";
 import type { Tile, TileType, Unit } from "~/utils/units";
-import { units } from "~/utils/units";
+import { LESSONS_PER_TILE, units } from "~/utils/units";
 
 type TileStatus = "LOCKED" | "ACTIVE" | "COMPLETE";
 
 const tileStatus = (tile: Tile, lessonsCompleted: number): TileStatus => {
-  const lessonsPerTile = 4;
+  const lessonsPerTile = LESSONS_PER_TILE;
   const tilesCompleted = Math.floor(lessonsCompleted / lessonsPerTile);
   const tiles = units.flatMap((unit) => unit.tiles);
   const tileIndex = tiles.findIndex((t) => t === tile);
@@ -306,7 +306,7 @@ const TileTooltip = ({
   );
 };
 
-const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
+const UnitSection = ({ unit, previousLessons }: { unit: Unit, previousLessons: number }): JSX.Element => {
   const router = useRouter();
 
   const [selectedTile, setSelectedTile] = useState<null | number>(null);
@@ -320,6 +320,12 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
   const closeTooltip = useCallback(() => setSelectedTile(null), []);
 
   const lessonsCompleted = useBoundStore((x) => x.lessonsCompleted);
+  const currentUnitCompleted = lessonsCompleted - previousLessons;
+  console.log('debug:render:', {
+    currentUnitCompleted,
+    previousLessons,
+    lessonsCompleted,
+  });
   const increaseLessonsCompleted = useBoundStore(
     (x) => x.increaseLessonsCompleted,
   );
@@ -335,7 +341,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
       />
       <div className="relative mb-8 mt-[67px] flex max-w-2xl flex-col items-center gap-4">
         {unit.tiles.map((tile, i): JSX.Element => {
-          const status = tileStatus(tile, lessonsCompleted);
+          const status = tileStatus(tile, currentUnitCompleted);
           return (
             <Fragment key={i}>
               {(() => {
@@ -375,7 +381,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                           <HoverLabel text="Start" textColor={unit.textColor} />
                         ) : null}
                         <LessonCompletionSvg
-                          lessonsCompleted={lessonsCompleted}
+                          lessonsCompleted={currentUnitCompleted}
                           status={status}
                         />
                         <button
@@ -499,7 +505,9 @@ const Learn: NextPage = () => {
   }, [scrollY]);
 
   const topBarColors = getTopBarColors(scrollY);
+  console.log('debug:units:', units);
 
+  let curLessons = 0;
   return (
     <>
       <TopBar
@@ -510,9 +518,13 @@ const Learn: NextPage = () => {
 
       <div className="flex justify-center gap-3 pt-14 sm:p-6 sm:pt-10 md:ml-24 lg:ml-64 lg:gap-12">
         <div className="flex max-w-2xl grow flex-col">
-          {units.map((unit) => (
-            <UnitSection unit={unit} key={unit.unitNumber} />
-          ))}
+          {units.map((unit) => {
+            console.log('debug:curLessons:', curLessons);
+            const content = <UnitSection previousLessons={curLessons} unit={unit} key={unit.unitNumber} />
+            curLessons += unit.tiles.length;
+            console.log('debug:curLessons after:', curLessons, unit);
+            return content;
+          })}
           <div className="sticky bottom-28 left-0 right-0 flex items-end justify-between">
             <Link
               href="/lesson?practice"
@@ -560,14 +572,15 @@ const LessonCompletionSvg = ({
   if (status !== "ACTIVE") {
     return null;
   }
-  switch (lessonsCompleted % 4) {
+  const percent = lessonsCompleted / LESSONS_PER_TILE;
+  switch (percent) {
     case 0:
       return <LessonCompletionSvg0 style={style} />;
-    case 1:
+    case 0.25:
       return <LessonCompletionSvg1 style={style} />;
-    case 2:
+    case 0.5:
       return <LessonCompletionSvg2 style={style} />;
-    case 3:
+    case 1:
       return <LessonCompletionSvg3 style={style} />;
     default:
       return null;

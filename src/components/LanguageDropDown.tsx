@@ -9,8 +9,8 @@ export const LanguageDropDown = () => {
   return (
     <div
       className="relative hidden cursor-pointer items-center md:flex"
-      onMouseEnter={() => setLanguagesShown(true)}
-      onMouseLeave={() => setLanguagesShown(false)}
+      // onMouseEnter={() => setLanguagesShown(true)}
+      // onMouseLeave={() => setLanguagesShown(false)}
       aria-haspopup={true}
       aria-expanded={languagesShown}
       role="button"
@@ -21,8 +21,9 @@ export const LanguageDropDown = () => {
         }
       }}
     >
-      <span className="text-md uppercase">Site language: English</span>{" "}
-      <ChevronDownSvg />
+      {/* <span className="text-md uppercase">Site language: English</span>{" "} */}
+      <span className="text-md uppercase">Site language: Gualish</span>{" "}
+      {/* <ChevronDownSvg /> */}
       {languagesShown && (
         <ul className="absolute right-0 top-full grid w-[500px] grid-cols-2 rounded-2xl border-2 border-gray-200 bg-white p-6 font-light text-gray-600">
           {languages.map((language) => {

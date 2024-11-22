@@ -42,9 +42,9 @@ export const RightBar = () => {
         <article className="my-6 flex justify-between gap-4">
           <div
             className="relative flex cursor-default items-center gap-2 rounded-xl p-3 font-bold uppercase text-gray-500 hover:bg-gray-100"
-            onMouseEnter={() => setLanguagesShown(true)}
-            onMouseLeave={() => setLanguagesShown(false)}
-            onClick={() => setLanguagesShown((x) => !x)}
+            // onMouseEnter={() => setLanguagesShown(true)}
+            // onMouseLeave={() => setLanguagesShown(false)}
+            // onClick={() => setLanguagesShown((x) => !x)}
             role="button"
             tabIndex={0}
           >
@@ -154,9 +154,9 @@ export const RightBar = () => {
         ) : null}
         <DailyQuestsSection />
         <XpProgressSection />
-        {!loggedIn && (
+        {/* {!loggedIn && (
           <CreateAProfileSection setLoginScreenState={setLoginScreenState} />
-        )}
+        )} */}
       </aside>
       <LoginScreen
         loginScreenState={loginScreenState}
