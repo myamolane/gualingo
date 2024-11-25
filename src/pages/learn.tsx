@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Link from "next/link";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import {
   ActiveBookSvg,
   LockedBookSvg,

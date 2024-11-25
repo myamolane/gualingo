@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -207,7 +208,8 @@ const Lesson: NextPage = () => {
     case EAnswerType.SELECT_SINGLE: {
       return (
         <ProblemSelect1Of3
-          problem={problem}
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          problem={problem as unknown as any}
           correctAnswerCount={correctAnswerCount}
           totalCorrectAnswersNeeded={totalCorrectAnswersNeeded}
           selectedAnswer={selectedAnswer}
