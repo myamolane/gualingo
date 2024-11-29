@@ -14,19 +14,24 @@ const config = {
    *
    * @see https://github.com/vercel/next.js/issues/41980
    */
-  i18n: {
-    locales: ["en"],
-    defaultLocale: "en",
-  },
+  // i18n: {
+  //   locales: ["en"],
+  //   defaultLocale: "en",
+  // },
+  // images: {
+  //   // unoptimized: true,
+  //   remotePatterns: [
+  //     {
+  //       protocol: "https",
+  //       hostname: "placekitten.com",
+  //       port: "",
+  //       pathname: "/100/100",
+  //     },
+  //   ],
+  // },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "placekitten.com",
-        port: "",
-        pathname: "/100/100",
-      },
-    ],
+    unoptimized: true,
   },
+  output: 'export',
 };
 export default config;
